@@ -95,9 +95,28 @@ class TelasTest {
         })
     }
 
-    @Test @Config(qualifiers = "w393dp-h1250dp-420dpi")
+    private val alvoPlano = Plano(1, "Meu plano", alvoKcal = 1800.0, alvoProt = 150.0, alvoCarb = 180.0, alvoGord = 55.0)
+
+    @Test @Config(qualifiers = "w393dp-h1300dp-420dpi")
+    fun editor() {
+        val whey = Alimento(id = 20, nome = "Whey Protein Concentrado (TOP)", marca = "Growth", fonte = "Rótulo",
+            kcal100 = 122 * 10 / 3.0, prot100 = 23 * 10 / 3.0, carb100 = 2.7 * 10 / 3.0, gord100 = 2.1 * 10 / 3.0)
+        val amendoim = a(21, "Amendoim, torrado, salgado", 606.0, 22.5, 18.7, 54.0)
+        val r = refeicao(1, "Refeição 1", 7 * 60 + 30, aveia to 45.0, whey to 45.0, amendoim to 20.0)
+        val outras = plano.drop(1).map { it.macros }.fold(Macros.ZERO) { x, y -> x + y }
+        captureRoboImage("../docs/telas/06-editar-refeicao.png", content = tela {
+            app.noplano.ui.plano.EditorConteudo(r, r.principal, outras + r.macros, alvoPlano.alvo, app.noplano.ui.plano.EditorAcoes())
+        })
+    }
+
+    @Test @Config(qualifiers = "w393dp-h900dp-420dpi")
+    fun alvo() = captureRoboImage("../docs/telas/07-alvo.png", content = tela {
+        app.noplano.ui.plano.DialogoAlvo(alvoPlano.alvo, {}, {})
+    })
+
+    @Test @Config(qualifiers = "w393dp-h1500dp-420dpi")
     fun plano() = captureRoboImage("../docs/telas/04-plano.png", content = tela {
-        PlanoConteudo(PlanoUi(listOf(Plano(1, "Meu plano"), Plano(2, "Descanso")), Plano(1, "Meu plano"), setOf(1, 2, 3, 4, 5), plano), PlanoAcoes())
+        PlanoConteudo(PlanoUi(listOf(Plano(1, "Meu plano"), Plano(2, "Descanso")), alvoPlano, setOf(1, 2, 3, 4, 5), plano), PlanoAcoes())
     })
 
     @Test @Config(qualifiers = "w393dp-h2300dp-420dpi")

@@ -78,9 +78,11 @@ private fun Raiz() {
             composable("progresso") { ProgressoTela() }
             composable("ajustes") { AjustesTela { nav.popBackStack() } }
             composable("refeicao/{id}", arguments = listOf(navArgument("id") { type = NavType.LongType })) { entrada ->
-                EditorRefeicaoTela(entrada.arguments!!.getLong("id"), { nav.popBackStack() }) {
-                    nav.navigate("refeicao/$it") { popUpTo("plano") }
-                }
+                EditorRefeicaoTela(
+                    entrada.arguments!!.getLong("id"), { nav.popBackStack() },
+                    { nav.navigate("refeicao/$it") { popUpTo("plano") } },
+                    irParaPlano = { nav.popBackStack("plano", inclusive = false) },
+                )
             }
         }
         if (rota in abas.map { it.first }) BarraAbas(rota, ::irAba)

@@ -250,7 +250,7 @@ class Repositorio(
     suspend fun duplicarPlano(id: Long): Long {
         val novo = banco.withTransaction {
             val origem = planos.plano(id) ?: error("Plano não encontrado")
-            val novoId = planos.inserir(Plano(nome = "${origem.nome} (cópia)", ordem = planos.planosAgora().size))
+            val novoId = planos.inserir(origem.copy(id = 0, nome = "${origem.nome} (cópia)", ordem = planos.planosAgora().size))
             planos.refeicoesAgora(id).forEach { copiarRefeicao(it, novoId, it.refeicao.nome) }
             novoId
         }
@@ -270,6 +270,17 @@ class Repositorio(
         }
         if (ok) mudou(avaliar = false)
         return ok
+    }
+
+    fun plano(id: Long): Flow<Plano?> = planos.planoFluxo(id)
+
+    /** Salva o alvo de macros do plano. Campos nulos ficam sem alvo. */
+    suspend fun salvarAlvo(planoId: Long, alvo: app.noplano.domain.Alvo) {
+        val limpo = app.noplano.domain.Alvo(
+            alvo.kcal?.takeIf { it > 0 }, alvo.prot?.takeIf { it > 0 }, alvo.carb?.takeIf { it > 0 }, alvo.gord?.takeIf { it > 0 },
+        )
+        planos.plano(planoId)?.let { planos.atualizar(it.comAlvo(limpo)) }
+        mudou(avaliar = false)
     }
 
     suspend fun definirDia(dia: Int, planoId: Long) { planos.definirDia(DiaSemana(dia, planoId)); mudou(avaliar = false) }

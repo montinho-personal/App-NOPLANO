@@ -69,8 +69,16 @@ class CalculoTest {
     @Test fun `leitura de numero aceita virgula e rejeita invalido`() {
         assertEquals(12.5, Fmt.lerNumero("12,5")!!, d)
         assertEquals(12.5, Fmt.lerNumero(" 12.5 ")!!, d)
+        assertEquals(1800.0, Fmt.lerNumero("1.800")!!, d)
+        assertEquals(1800.5, Fmt.lerNumero("1.800,5")!!, d)
+        assertEquals(1.8, Fmt.lerNumero("1.8")!!, d)
         assertNull(Fmt.lerNumero("abc"))
         assertNull(Fmt.lerNumero("-3"))
+    }
+
+    @Test fun `numero que vai para um campo volta igual ao ser lido`() {
+        for (v in listOf(1800.0, 1500.0, 45.0, 12.5, 0.5, 2500.0)) assertEquals(v, Fmt.lerNumero(Fmt.quantidade(v))!!, d)
+        assertEquals("1800", Fmt.quantidade(1800.0))
     }
 
     @Test fun `hora formatada`() {

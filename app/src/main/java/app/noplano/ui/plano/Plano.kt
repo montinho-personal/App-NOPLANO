@@ -70,6 +70,7 @@ data class PlanoUi(
     val refeicoes: List<RefeicaoCompleta>,
 ) {
     val total: Macros get() = refeicoes.map { it.macros }.somar()
+    val alvo: app.noplano.domain.Alvo get() = atual.alvo
 }
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -92,6 +93,7 @@ class PlanoViewModel(aplicacao: Application) : AndroidViewModel(aplicacao) {
     fun renomear(id: Long, nome: String) = viewModelScope.launch { repo.renomearPlano(id, nome) }
     fun duplicar(id: Long) = viewModelScope.launch { selecionado.value = repo.duplicarPlano(id) }
     fun excluir(id: Long) = viewModelScope.launch { if (repo.excluirPlano(id)) selecionado.value = null }
+    fun salvarAlvo(planoId: Long, alvo: app.noplano.domain.Alvo) = viewModelScope.launch { repo.salvarAlvo(planoId, alvo) }
     fun usarNoDia(dia: Int, planoId: Long) = viewModelScope.launch { repo.definirDia(dia, planoId) }
     fun novaRefeicao(planoId: Long, nome: String, aoCriar: (Long) -> Unit) = viewModelScope.launch {
         aoCriar(repo.criarRefeicao(planoId, nome, 12 * 60))
@@ -107,6 +109,7 @@ class PlanoAcoes(
     val usarNoDia: (Int) -> Unit = {},
     val abrirRefeicao: (Long) -> Unit = {},
     val novaRefeicao: () -> Unit = {},
+    val editarAlvo: () -> Unit = {},
 )
 
 @Composable
@@ -120,6 +123,7 @@ fun PlanoTela(abrirRefeicao: (Long) -> Unit, vm: PlanoViewModel = viewModel()) {
             selecionar = vm::selecionar, novoPlano = { dialogo = "novo" }, renomear = { dialogo = "renomear" },
             duplicar = { vm.duplicar(estado.atual.id) }, excluir = { dialogo = "excluir" },
             usarNoDia = { vm.usarNoDia(it, estado.atual.id) }, abrirRefeicao = abrirRefeicao, novaRefeicao = { dialogo = "refeicao" },
+            editarAlvo = { dialogo = "alvo" },
         ),
     )
     when (dialogo) {
@@ -128,6 +132,7 @@ fun PlanoTela(abrirRefeicao: (Long) -> Unit, vm: PlanoViewModel = viewModel()) {
         "refeicao" -> DialogoTexto("Nova refeição", "Nome (ex.: Almoço)", "", { dialogo = null }) {
             vm.novaRefeicao(estado.atual.id, it, abrirRefeicao); dialogo = null
         }
+        "alvo" -> DialogoAlvo(estado.alvo, { dialogo = null }) { vm.salvarAlvo(estado.atual.id, it); dialogo = null }
         "excluir" -> DialogoConfirmar(
             "Excluir plano", "As refeições de \"${estado.atual.nome}\" serão apagadas. O que você já registrou continua no histórico.",
             "Excluir", { dialogo = null },
@@ -163,15 +168,16 @@ fun PlanoConteudo(ui: PlanoUi, acoes: PlanoAcoes, modifier: Modifier = Modifier)
             Text("Toque em um dia para ele passar a usar este plano.", style = Tipos.pequeno)
         }
         Espaco(16.dp)
+        TituloSecao("Macros do plano") {
+            BotaoContorno(if (ui.alvo.vazio) "Definir alvo" else "Editar alvo", acoes.editarAlvo, cor = Cores.destaque, altura = 40.dp)
+        }
         Cartao {
             Column {
-                Rotulo("Meta do dia neste plano")
-                Row(verticalAlignment = Alignment.Bottom) {
-                    Text(Fmt.kcal(ui.total.kcal), style = Tipos.numeroGrande, color = Cores.destaque)
-                    Text(" KCAL", style = Tipos.unidade, modifier = Modifier.padding(bottom = 5.dp))
-                }
+                app.noplano.ui.PainelMacros(ui.total, ui.alvo)
+                Espaco(4.dp)
                 Text(
-                    "Proteínas ${Fmt.gramasInteiro(ui.total.prot)} g · Carboidratos ${Fmt.gramasInteiro(ui.total.carb)} g · Gorduras ${Fmt.gramasInteiro(ui.total.gord)} g",
+                    if (ui.alvo.vazio) "Soma de todas as refeições. Defina um alvo (por exemplo, o da sua nutricionista) para ver quanto falta ou sobra."
+                    else "Soma das refeições comparada com o seu alvo. Ajuste as quantidades em cada refeição: os números mudam na hora.",
                     style = Tipos.pequeno,
                 )
             }
@@ -193,6 +199,7 @@ fun PlanoConteudo(ui: PlanoUi, acoes: PlanoAcoes, modifier: Modifier = Modifier)
                         r.principal?.itens?.joinToString(" · ") { it.resumo() }?.ifBlank { null } ?: "Sem alimentos. Toque para adicionar.",
                         style = Tipos.pequeno,
                     )
+                    Text("P ${Fmt.gramasInteiro(r.macros.prot)} · C ${Fmt.gramasInteiro(r.macros.carb)} · G ${Fmt.gramasInteiro(r.macros.gord)}", style = Tipos.rotulo, color = Cores.textoSuave)
                     if (r.opcoes.size > 1) Rotulo("${r.opcoes.size - 1} alternativa" + if (r.opcoes.size > 2) "s" else "")
                 }
                 EspacoH(8.dp)
@@ -210,5 +217,44 @@ fun PlanoConteudo(ui: PlanoUi, acoes: PlanoAcoes, modifier: Modifier = Modifier)
         }
         Espaco(8.dp)
         Text("Duplicar copia todas as refeições para um novo plano, pronto para ajustar (ex.: dia de descanso).", style = Tipos.pequeno)
+    }
+}
+
+/** Alvo de macros digitado pelo usuário. Campo vazio = sem alvo para aquele valor. */
+@Composable
+fun DialogoAlvo(atual: app.noplano.domain.Alvo, fechar: () -> Unit, salvar: (app.noplano.domain.Alvo) -> Unit) {
+    fun t(v: Double?) = v?.let { Fmt.quantidade(it) } ?: ""
+    var kcal by remember { mutableStateOf(t(atual.kcal)) }
+    var prot by remember { mutableStateOf(t(atual.prot)) }
+    var carb by remember { mutableStateOf(t(atual.carb)) }
+    var gord by remember { mutableStateOf(t(atual.gord)) }
+    fun ler(s: String) = if (s.isBlank()) null else Fmt.lerNumero(s)
+    val validos = listOf(kcal, prot, carb, gord).all { it.isBlank() || Fmt.lerNumero(it) != null }
+    // Calorias que os macros digitados somam (4 kcal/g de proteína e carboidrato, 9 kcal/g de gordura).
+    val pelosMacros = listOf(ler(prot), ler(carb), ler(gord)).takeIf { l -> l.all { it != null } }
+        ?.let { (p, c, g) -> p!! * 4 + c!! * 4 + g!! * 9 }
+    app.noplano.ui.DialogoBase(fechar) {
+        Rotulo("Digite o que você quer atingir", cor = Cores.destaque)
+        Text("ALVO DE MACROS", style = Tipos.tituloCartao)
+        Espaco(6.dp)
+        Text("O app não calcula alvos: use os números que você ou sua nutricionista definiram. Deixe em branco o que não quiser acompanhar.", style = Tipos.pequeno)
+        Espaco(12.dp)
+        app.noplano.ui.CampoTexto(kcal, { kcal = it }, "Calorias", numerico = true, sufixo = "kcal")
+        Espaco(10.dp)
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            app.noplano.ui.CampoTexto(prot, { prot = it }, "Proteínas", Modifier.weight(1f), numerico = true, sufixo = "g")
+            app.noplano.ui.CampoTexto(carb, { carb = it }, "Carbos", Modifier.weight(1f), numerico = true, sufixo = "g")
+            app.noplano.ui.CampoTexto(gord, { gord = it }, "Gorduras", Modifier.weight(1f), numerico = true, sufixo = "g")
+        }
+        if (pelosMacros != null) {
+            Espaco(8.dp)
+            Text("Esses macros somam ${Fmt.kcal(pelosMacros)} kcal.", style = Tipos.pequeno)
+            if (kcal.isBlank()) app.noplano.ui.BotaoContorno("Usar ${Fmt.kcal(pelosMacros)} kcal como alvo", { kcal = Fmt.quantidade(kotlin.math.round(pelosMacros)) }, Modifier.fillMaxWidth())
+        }
+        Espaco(14.dp)
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            app.noplano.ui.BotaoContorno("Limpar", { salvar(app.noplano.domain.Alvo()) }, Modifier.weight(1f))
+            app.noplano.ui.BotaoPrincipal("Salvar", { salvar(app.noplano.domain.Alvo(ler(kcal), ler(prot), ler(carb), ler(gord))) }, Modifier.weight(1f), ativo = validos)
+        }
     }
 }

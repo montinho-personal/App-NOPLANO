@@ -47,13 +47,13 @@ private sealed interface Passo {
  * ou cadastrar um novo a partir do rótulo.
  */
 @Composable
-fun SeletorAlimento(aoEscolher: (Escolha) -> Unit, aoFechar: () -> Unit) {
+fun SeletorAlimento(aoEscolher: (Escolha) -> Unit, aoFechar: () -> Unit, contexto: app.noplano.ui.plano.ContextoMacros? = null) {
     var passo by remember { mutableStateOf<Passo>(Passo.Busca) }
     Dialog(onDismissRequest = aoFechar, properties = DialogProperties(usePlatformDefaultWidth = false)) {
         Column(Modifier.fillMaxSize().background(Cores.fundo).systemBarsPadding().imePadding().padding(horizontal = Margem)) {
             when (val p = passo) {
                 Passo.Busca -> Busca(aoFechar, { passo = Passo.Quantidade(it) }, { passo = Passo.Cadastro(null) }, { passo = Passo.Cadastro(it) })
-                is Passo.Quantidade -> Quantidade(p.alimento, { passo = Passo.Busca }, aoEscolher)
+                is Passo.Quantidade -> Quantidade(p.alimento, { passo = Passo.Busca }, aoEscolher, contexto)
                 is Passo.Cadastro -> Cadastro(p.base, { passo = Passo.Busca }) { passo = Passo.Quantidade(it) }
             }
         }
@@ -102,7 +102,7 @@ private fun androidx.compose.foundation.layout.ColumnScope.Busca(fechar: () -> U
 }
 
 @Composable
-private fun androidx.compose.foundation.layout.ColumnScope.Quantidade(a: Alimento, voltar: () -> Unit, escolher: (Escolha) -> Unit) {
+private fun androidx.compose.foundation.layout.ColumnScope.Quantidade(a: Alimento, voltar: () -> Unit, escolher: (Escolha) -> Unit, contexto: app.noplano.ui.plano.ContextoMacros?) {
     val temUnidade = a.unidadeNome != null && (a.unidadeGramas ?: 0.0) > 0
     var emUnidades by remember { mutableStateOf(temUnidade) }
     var texto by remember { mutableStateOf(if (temUnidade) "1" else "100") }
@@ -131,6 +131,12 @@ private fun androidx.compose.foundation.layout.ColumnScope.Quantidade(a: Aliment
                 LinhaValor("Carboidratos", "${Fmt.gramas(m.carb)} g")
                 LinhaValor("Gorduras", "${Fmt.gramas(m.gord)} g")
             }
+        }
+    }
+    if (contexto != null) {
+        Espaco(10.dp)
+        Column(Modifier.fillMaxWidth().background(Cores.superficie).padding(14.dp)) {
+            ResumoMacrosCompacto(contexto.titulo, contexto.base + (gramas?.let { a.macros(it) } ?: app.noplano.domain.Macros.ZERO), contexto.alvo)
         }
     }
     Espaco(18.dp)

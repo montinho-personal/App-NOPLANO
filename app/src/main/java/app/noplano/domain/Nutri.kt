@@ -33,6 +33,8 @@ object Fmt {
     private val inteiro = DecimalFormat("#,##0", br)
     private val umaCasa = DecimalFormat("#,##0.#", br)
     private val umaCasaFixa = DecimalFormat("#,##0.0", br)
+    // Sem separador de milhar: é o formato que volta para os campos de digitação.
+    private val editavel = DecimalFormat("0.#", br)
 
     fun arredondar(v: Double, casas: Int): BigDecimal =
         BigDecimal.valueOf(v).setScale(casas, RoundingMode.HALF_UP)
@@ -41,11 +43,16 @@ object Fmt {
     fun gramasInteiro(v: Double): String = inteiro.format(arredondar(v, 0))
     fun gramas(v: Double): String = umaCasa.format(arredondar(v, 1))
     fun litros(ml: Int): String = umaCasaFixa.format(arredondar(ml / 1000.0, 1))
-    fun quantidade(v: Double): String = umaCasa.format(arredondar(v, 1))
+    /** Quantidade para mostrar e para pôr em campo editável: "1500", "12,5". Nunca usa ponto de milhar. */
+    fun quantidade(v: Double): String = editavel.format(arredondar(v, 1))
 
     fun hora(minutos: Int): String = "%02dh%02d".format(minutos / 60, minutos % 60)
 
     /** Aceita "12,5" ou "12.5". Retorna null se não for número válido e não negativo. */
-    fun lerNumero(texto: String): Double? =
-        texto.trim().replace(',', '.').toDoubleOrNull()?.takeIf { it >= 0 && it.isFinite() }
+    fun lerNumero(texto: String): Double? {
+        var t = texto.trim().replace(" ", "")
+        // "1.800" ou "1.800,5": ponto como separador de milhar (padrão brasileiro).
+        if (Regex("""^\d{1,3}(\.\d{3})+(,\d+)?$""").matches(t)) t = t.replace(".", "")
+        return t.replace(',', '.').toDoubleOrNull()?.takeIf { it >= 0 && it.isFinite() }
+    }
 }

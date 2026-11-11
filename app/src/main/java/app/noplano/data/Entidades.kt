@@ -40,7 +40,15 @@ data class Plano(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val nome: String,
     val ordem: Int = 0,
-)
+    // Alvo de macros digitado pelo usuário (opcional). Não muda a meta do dia, que é a soma do plano.
+    val alvoKcal: Double? = null,
+    val alvoProt: Double? = null,
+    val alvoCarb: Double? = null,
+    val alvoGord: Double? = null,
+) {
+    val alvo: app.noplano.domain.Alvo get() = app.noplano.domain.Alvo(alvoKcal, alvoProt, alvoCarb, alvoGord)
+    fun comAlvo(a: app.noplano.domain.Alvo) = copy(alvoKcal = a.kcal, alvoProt = a.prot, alvoCarb = a.carb, alvoGord = a.gord)
+}
 
 /** Qual plano vale em cada dia da semana (1 = segunda … 7 = domingo). */
 @Serializable

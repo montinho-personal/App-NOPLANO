@@ -34,15 +34,19 @@ Se mexeu em tela, gere de novo as imagens e olhe o resultado:
 - **Gamificação saudável:** nada premia comer menos que a meta; nenhum contador zera;
   ausência de registro nunca é tratada como "não comeu"; sem cor de alerta para "passou da meta".
 - **A meta do dia é a soma do plano** (opção principal de cada refeição). O app não calcula metas.
+  O **alvo de macros** (`Plano.alvo*`) é opcional e sempre digitado pelo usuário; serve só para
+  comparar o plano enquanto ele é editado. Não substitui a meta do dia na tela Hoje.
 - **Toda gravação passa pelo `Repositorio`**, que chama `aoMudar` (atualiza widgets e
   reagenda lembretes). Não gravar direto nos DAOs a partir da interface.
-- **Mudou o banco?** Suba a `version` em `data/Banco.kt` e escreva a migração. Nunca usar
-  migração destrutiva: os dados do usuário só existem no aparelho dele.
+- **Mudou o banco?** Suba a `version` em `data/Banco.kt`, escreva a migração em `MIGRACOES`
+  e um teste como `MigracaoTest`. Nunca usar migração destrutiva: os dados do usuário só
+  existem no aparelho dele. Os esquemas de cada versão ficam em `app/schemas`.
 - **Mudou o formato do backup?** Suba `versao` em `data/Backup.kt` e continue lendo a anterior.
 
 ## Onde fica cada coisa
 
-- `domain/`: Kotlin puro, sem Android, coberto por testes. Cálculo (`Nutri`), estado do dia
+- `domain/`: Kotlin puro, sem Android, coberto por testes. Cálculo (`Nutri`), alvo e passos de
+  ajuste (`Alvo`), estado do dia
   (`Dia`), regras de lembrete (`Lembretes`), consistência e conquistas (`Consistencia`),
   relatórios e padrões (`Relatorios`), frases (`Mensagens`), preferências (`Ajustes`).
 - `data/`: entidades e DAOs do Room, `Repositorio`, `Preferencias`, `Backup`, `Taco`, `Exemplo`.

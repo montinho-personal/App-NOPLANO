@@ -57,9 +57,13 @@ Geradas a partir do código real do app.
 |---|---|---|
 | ![](telas/01-meu-dia.png) | ![](telas/02-retomada.png) | ![](telas/03-primeiro-uso.png) |
 
-| Plano | Progresso |
-|---|---|
-| ![](telas/04-plano.png) | ![](telas/05-progresso.png) |
+| Plano | Editar refeição | Alvo de macros |
+|---|---|---|
+| ![](telas/04-plano.png) | ![](telas/06-editar-refeicao.png) | ![](telas/07-alvo.png) |
+
+| Progresso |
+|---|
+| ![](telas/05-progresso.png) |
 
 ## Design system
 

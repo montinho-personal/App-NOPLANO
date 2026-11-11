@@ -183,6 +183,18 @@ class RepositorioTest {
         assertEquals(repo.refeicoes(planoId).first().map { it.macros }, refeicoes.map { it.macros })
     }
 
+    @Test fun `alvo de macros e salvo, copiado ao duplicar e nao muda a meta do dia`() = runTest {
+        val meta = repo.estadoDia().meta
+        repo.salvarAlvo(planoId, app.noplano.domain.Alvo(kcal = 2000.0, prot = 180.0, carb = 0.0, gord = null))
+        val p = repo.plano(planoId).first()!!
+        assertEquals(app.noplano.domain.Alvo(kcal = 2000.0, prot = 180.0), p.alvo) // zero vira "sem alvo"
+        assertEquals(meta, repo.estadoDia().meta)
+        val copia = repo.duplicarPlano(planoId)
+        assertEquals(p.alvo, repo.plano(copia).first()!!.alvo)
+        repo.salvarAlvo(planoId, app.noplano.domain.Alvo())
+        assertTrue(repo.plano(planoId).first()!!.alvo.vazio)
+    }
+
     @Test fun `plano por dia da semana`() = runTest {
         val leve = repo.criarPlano("Descanso")
         val r = repo.criarRefeicao(leve, "Brunch", 10 * 60)
@@ -213,6 +225,7 @@ class RepositorioTest {
         repo.adicionarAgua(hoje, 750)
         repo.anotarDificuldade(hoje, "Rotina corrida")
         ajustes.alterar { it.copy(metaAguaMl = 2500, vibrar = false) }
+        repo.salvarAlvo(planoId, app.noplano.domain.Alvo(kcal = 1900.0, prot = 170.0))
         val backup = Backup(banco, ajustes)
         val texto = backup.exportar(relogio.agoraMillis())
         val antes = repo.estadoDia()
@@ -232,6 +245,7 @@ class RepositorioTest {
         assertEquals(antes.extras.map { it.registro.nome }, depois.extras.map { it.registro.nome })
         assertEquals(conquistasAntes, repo.conquistas().first())
         assertEquals(2500, ajustes.atual().metaAguaMl)
+        assertEquals(app.noplano.domain.Alvo(kcal = 1900.0, prot = 170.0), repo.plano(planoId).first()!!.alvo)
         assertFalse(ajustes.atual().vibrar)
         assertEquals("Rotina corrida", repo.historico(hoje, hoje).first().dificuldade)
         assertEquals(texto, backup.exportar(relogio.agoraMillis()))

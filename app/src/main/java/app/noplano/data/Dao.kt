@@ -15,6 +15,7 @@ interface PlanoDao {
     @Query("SELECT * FROM Plano ORDER BY ordem, id") fun planos(): Flow<List<Plano>>
     @Query("SELECT * FROM Plano ORDER BY ordem, id") suspend fun planosAgora(): List<Plano>
     @Query("SELECT * FROM Plano WHERE id = :id") suspend fun plano(id: Long): Plano?
+    @Query("SELECT * FROM Plano WHERE id = :id") fun planoFluxo(id: Long): Flow<Plano?>
     @Insert suspend fun inserir(p: Plano): Long
     @Update suspend fun atualizar(p: Plano)
     @Delete suspend fun excluir(p: Plano)

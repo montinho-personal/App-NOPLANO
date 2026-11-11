@@ -15,6 +15,8 @@ cada dia é tocar em **CONCLUÍ REFEIÇÃO**.
 ## O que o app faz
 
 - **Meu dia:** calorias, macros, água, próxima refeição e progresso em uma tela.
+- **Ajuste pelas macros:** alvo de macros opcional, painel do plano contra o alvo e botões
+  – e + em cada alimento, com o dia inteiro mudando na hora.
 - **Registro em um toque**, com desfazer, consumo parcial, alternativas e "fora do plano".
 - **Widget** na tela inicial (compacto e com botões), que registra sem abrir o app.
 - **Lembretes** por regras locais: antes da refeição, refeição sem registro, água e resumo.
