@@ -33,10 +33,33 @@ Notas de 1 a 5. São julgamentos de design **[Hipótese]**, não medições.
 - **Grafite** responde tudo sem rolar, mantém o botão sempre no mesmo lugar e usa a cor
   só onde há progresso. É a que menos envelhece.
 
-## Direção escolhida: Grafite, com a trilha do dia
+## Direção escolhida: Pulso, em amarelo vivo
 
-Fica a base da proposta 1. Da proposta 3 vem a lista de refeições como trilha (pontos
-ligados por uma linha), logo abaixo da água, e o tom calmo das mensagens.
+A avaliação acima apontava Grafite. **O dono do app escolheu a Pulso**, trocando o verde
+por amarelo, e essa é a direção implementada. É uma decisão de gosto legítima: o app
+precisa dar vontade de abrir. Para compensar os pontos fracos apontados na tabela, a
+implementação fez três ajustes:
+
+- **Leitura:** a fonte condensada em caixa alta fica só em números, títulos e rótulos
+  curtos. Todo texto corrido usa Barlow normal, em caixa mista, com 15 sp.
+- **Tom:** nada de "em jogo" ou linguagem de desempenho. O contador diz "dias no plano"
+  e nunca zera; as mensagens continuam calmas.
+- **Atenção:** o cartão amarelo cheio existe uma vez por tela, sempre na próxima ação.
+
+![Cores testadas](design/pulso-cores.png)
+![Tons de amarelo](design/pulso-amarelos.png)
+
+## Telas implementadas
+
+Geradas a partir do código real do app.
+
+| Meu dia | Retomada | Primeiro uso |
+|---|---|---|
+| ![](telas/01-meu-dia.png) | ![](telas/02-retomada.png) | ![](telas/03-primeiro-uso.png) |
+
+| Plano | Progresso |
+|---|---|
+| ![](telas/04-plano.png) | ![](telas/05-progresso.png) |
 
 ## Design system
 
@@ -44,62 +67,58 @@ ligados por uma linha), logo abaixo da água, e o tom calmo das mensagens.
 
 | Papel | Token | Valor | Uso |
 |---|---|---|---|
-| Fundo | `fundo` | `#0E1011` | Tela |
-| Superfície | `superficie` | `#16191B` | Cartões |
-| Superfície elevada | `superficieAlta` | `#1D2124` | Chips, campos |
-| Linha | `linha` | `#262B2E` | Bordas de 1 dp, trilho vazio |
-| Texto | `texto` | `#F2F4F3` | Principal (contraste 17:1 sobre o fundo) |
-| Texto secundário | `textoSuave` | `#9AA1A5` | Rótulos (contraste 7:1) |
-| Progresso | `esmeralda` | `#2FD48A` | Anel, botão principal, concluído |
-| Progresso fraco | `esmeraldaFraca` | `#1F5E44` | Próximo segmento do anel |
-| Sobre o progresso | `sobreEsmeralda` | `#06130D` | Texto do botão (contraste 10:1) |
-| Carboidratos | `areia` | `#E3C58B` | Barra de carboidratos |
-| Gorduras | `lavanda` | `#9AA8E0` | Barra de gorduras |
-| Água | `agua` | `#7CCBEB` | Hidratação |
-| Erro | `erro` | `#F2857A` | Só falhas do sistema |
+| Fundo | `fundo` | `#090909` | Tela |
+| Superfície | `superficie` | `#141414` | Cartões |
+| Superfície elevada | `superficieAlta` | `#1E1E1E` | Campos |
+| Linha | `linha` | `#333333` | Contornos de 1 dp |
+| Trilho | `trilho` | `#242424` | Parte vazia das barras |
+| Texto | `texto` | `#FFFFFF` | Principal (contraste 20:1 sobre o fundo) |
+| Texto secundário | `textoSuave` | `#9A9A9A` | Rótulos (contraste 7:1) |
+| Destaque | `destaque` | `#FFD60A` | Progresso, próxima ação, concluído (contraste 14:1 sobre o fundo) |
+| Sobre o destaque | `sobreDestaque` | `#0A0A0A` | Texto sobre amarelo (contraste 14:1) |
+| Erro | `erro` | `#FF7A6B` | Ações de excluir e falhas |
 
-Proteína usa a própria esmeralda. Não existe cor de "passou da meta".
+Uma única cor de destaque. Os três macros usam a mesma cor e se distinguem pelo rótulo.
+Não existe cor de "passou da meta".
 
 ### Tipografia
 
-- **Sora** para números e títulos. Peso 300 nos números grandes, 600 nos títulos.
-- **Manrope** para texto e rótulos. Pesos 400, 500 e 700.
-- Números sempre tabulares, para não "dançar" durante a animação.
+- **Barlow Condensed ExtraBold Itálico** para números e títulos.
+- **Barlow Condensed SemiBold**, em caixa alta e espaçada, para rótulos.
+- **Barlow** para texto.
+- Números sempre tabulares, para não "dançar" durante a contagem.
 
-| Estilo | Fonte | Tamanho |
-|---|---|---|
-| Número herói | Sora 300 | 52 sp |
-| Título de tela | Sora 600 | 22 sp |
-| Título de cartão | Sora 600 | 19 sp |
-| Número médio | Sora 400 | 17 sp |
-| Corpo | Manrope 400 | 15 sp |
-| Rótulo | Manrope 500 | 12 sp |
-| Sobrescrito (caixa alta) | Manrope 700, espaçado | 11 sp |
-| Botão | Manrope 700, espaçado | 15 sp |
+| Estilo | Tamanho |
+|---|---|
+| Número herói (calorias) | 104 sp |
+| Número grande | 40 sp |
+| Título de tela | 34 sp |
+| Número de cartão | 30 sp |
+| Título de cartão | 28 sp |
+| Botão | 20 sp |
+| Corpo | 15 sp |
+| Rótulo | 13 sp |
 
 O app respeita o tamanho de fonte do sistema.
 
 ### Forma e espaço
 
-- Margem lateral de 22 dp; espaço vertical em múltiplos de 4.
-- Cartões com raio de 22 dp e borda de 1 dp; botão principal com raio de 16 dp e 56 dp de altura.
-- Alvos de toque de no mínimo 48 dp.
+- Formas retas, sem cantos arredondados. O cartão da próxima refeição tem um canto cortado.
+- **Barra do dia:** um segmento inclinado por refeição, com largura proporcional às
+  calorias. Feito = cheio; próxima = hachurado; restante = vazio.
+- Margem lateral de 22 dp. Alvos de toque de no mínimo 48 dp; botão principal com 56 dp.
 
 ### Movimento
 
-- Anel e barras: 600 ms, curva de desaceleração.
-- Números: contagem até o novo valor em 600 ms.
-- Conclusão de refeição: o segmento preenche, o botão pulsa uma vez (escala 0,97 → 1).
-- Nada pisca nem se repete em laço. Com "remover animações" ligado no sistema, tudo
-  aparece direto no estado final.
+- Barras e números animam até o novo valor em 600 ms, desacelerando.
+- O botão principal encolhe 3% ao toque.
+- Nada pisca nem se repete em laço.
 
 ### Tato
 
-Vibração curta de confirmação ao concluir refeição e ao adicionar água. Pode ser
-desligada nos Ajustes.
+Vibração curta ao concluir refeição e ao adicionar água. Pode ser desligada nos Ajustes.
 
 ### Voz
 
-Frases curtas, no presente, sobre o dia. Sem exclamações em série, sem culpa, sem
-"você falhou". Exemplos: "Três refeições no plano. A próxima é às 16h." /
-"Seu próximo passo é o jantar."
+Frases curtas, no presente, sobre o dia. Sem culpa e sem "você falhou". Exemplos:
+"Lanche da tarde às 16h00. Segue o plano." / "Seu próximo passo é o jantar."

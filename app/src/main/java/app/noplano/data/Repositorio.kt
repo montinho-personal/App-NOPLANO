@@ -349,6 +349,16 @@ class Repositorio(
 
     // ---------- Histórico ----------
 
+    /** Refeições planejadas para cada dia da semana (1 = segunda), segundo o plano atual. */
+    suspend fun planoPorDiaSemana(): Map<Int, List<app.noplano.domain.RefeicaoRef>> {
+        val cache = mutableMapOf<Long, List<app.noplano.domain.RefeicaoRef>>()
+        return planos.diasSemanaAgora().associate { d ->
+            d.dia to cache.getOrPut(d.planoId) {
+                planos.refeicoesAgora(d.planoId).map { app.noplano.domain.RefeicaoRef(it.refeicao.id, it.refeicao.nome, it.refeicao.minutos) }
+            }
+        }
+    }
+
     fun diasComRegistro(): Flow<List<Long>> = registros.diasComRegistroFluxo()
     fun conquistas(): Flow<List<Conquista>> = registros.conquistas()
 

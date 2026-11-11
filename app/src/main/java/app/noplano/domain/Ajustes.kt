@@ -26,6 +26,7 @@ data class Ajustes(
     val widgetProxima: Boolean = true,
     val widgetProgresso: Boolean = true,
     val boasVindasVista: Boolean = false,
+    val pediuNotificacao: Boolean = false,
 ) {
     /** true se [min] cai no período de silêncio (que pode atravessar a meia-noite). */
     fun emSilencio(min: Int): Boolean = when {

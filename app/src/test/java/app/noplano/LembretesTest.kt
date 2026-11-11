@@ -92,3 +92,31 @@ class LembretesTest {
         assertTrue(Lembretes.doDia(dia(), off).isEmpty())
     }
 }
+
+class WidgetTest {
+    private val cafe = refeicao(1, "Café da manhã", 7 * 60 + 30, Comida.banana to 140.0)
+    private val almoco = refeicao(2, "Almoço", 12 * 60 + 30, Comida.arroz to 150.0, Comida.frango to 150.0)
+
+    @Test fun `widget mostra calorias proteinas agua e proxima refeicao`() {
+        val dia = montarDia(100, "Plano", listOf(cafe, almoco), listOf(registroDe(cafe, 100)), 1500, 3000, agoraMin = 9 * 60)
+        val w = app.noplano.widget.DadosWidget.de(dia, Ajustes())
+        assertEquals("137", w.kcal)
+        assertEquals("568", w.metaKcal)
+        assertEquals("2/54 g", w.proteinas)
+        assertEquals("1,5/3,0 L", w.agua)
+        assertEquals("1 DE 2", w.progresso)
+        assertEquals("Almoço", w.proximaTitulo)
+        assertEquals("12h30", w.proximaHora)
+        assertEquals(2L, w.proximaId)
+        assertEquals(listOf(2, 1), w.segmentos.map { it.second })
+    }
+
+    @Test fun `widget muda logo depois de concluir a refeicao`() {
+        val antes = app.noplano.widget.DadosWidget.de(montarDia(100, "Plano", listOf(cafe, almoco), listOf(registroDe(cafe, 100)), 0, 3000, 9 * 60), Ajustes())
+        val depois = app.noplano.widget.DadosWidget.de(montarDia(100, "Plano", listOf(cafe, almoco), listOf(registroDe(cafe, 100), registroDe(almoco, 100)), 0, 3000, 9 * 60), Ajustes())
+        assertFalse(antes.completo)
+        assertTrue(depois.completo)
+        assertNull(depois.proximaId)
+        assertEquals("568", depois.kcal)
+    }
+}

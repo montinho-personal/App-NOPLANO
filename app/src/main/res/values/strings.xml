@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_nome">No Plano</string>
+    <string name="widget_compacto">No Plano · compacto</string>
+    <string name="widget_expandido">No Plano · com botões</string>
+    <string name="widget_compacto_desc">Calorias, progresso e próxima refeição.</string>
+    <string name="widget_expandido_desc">Tudo do compacto, mais os botões Concluí e +250 ml.</string>
+</resources>
