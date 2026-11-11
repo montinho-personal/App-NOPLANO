@@ -342,6 +342,94 @@ class Repositorio(
     suspend fun atualizarItem(i: ItemPlano) { planos.atualizar(i); mudou(avaliar = false) }
     suspend fun excluirItem(id: Long) { planos.excluirItem(id); mudou(avaliar = false) }
 
+    // ---------- Plano vindo do arquivo ----------
+
+    /** Versão do arquivo esperando decisão do usuário, se houver. */
+    suspend fun planoArquivoPendente(arquivo: PlanoArquivo?): PlanoArquivo? =
+        arquivo?.takeIf { it.versao > ajustes.atual().planoArquivoVersao }
+
+    /** No primeiro uso (nenhuma refeição cadastrada), o plano do arquivo entra sem perguntar. */
+    suspend fun aplicarArquivoSeVazio(arquivo: PlanoArquivo?): Boolean {
+        val a = planoArquivoPendente(arquivo) ?: return false
+        val vazio = planos.planosAgora().all { planos.refeicoesAgora(it.id).isEmpty() }
+        if (!vazio) return false
+        aplicarArquivo(a)
+        return true
+    }
+
+    /** Marca a versão como vista sem aplicar ("manter o meu"). */
+    suspend fun recusarArquivo(arquivo: PlanoArquivo) {
+        ajustes.alterar { it.copy(planoArquivoVersao = maxOf(it.planoArquivoVersao, arquivo.versao)) }
+    }
+
+    /**
+     * Substitui as refeições dos planos citados no arquivo (pelo nome). Planos que não estão
+     * no arquivo ficam como estão. O histórico de registros não muda: cada registro guarda
+     * os próprios valores. Tudo ou nada.
+     */
+    suspend fun aplicarArquivo(a: PlanoArquivo) {
+        banco.withTransaction {
+            val chaves = mutableMapOf<String, Long>()
+            for (al in a.alimentos) chaves[al.chave] = garantirAlimento(al)
+            suspend fun idDe(i: ItemArquivo): Alimento {
+                val id = when {
+                    i.alimento != null -> chaves[i.alimento] ?: throw PlanoArquivoInvalido("Alimento não declarado: ${i.alimento}")
+                    i.taco != null -> alimentos.porTaco(i.taco)?.id ?: throw PlanoArquivoInvalido("Código TACO não encontrado: ${i.taco}")
+                    else -> throw PlanoArquivoInvalido("Item sem alimento")
+                }
+                return alimentos.porId(id)!!
+            }
+            suspend fun inserirItens(opcaoId: Long, itens: List<ItemArquivo>) {
+                for (i in itens) {
+                    val al = idDe(i)
+                    val gramas = i.gramas ?: i.unidades?.let { u -> al.unidadeGramas?.let { u * it } }
+                        ?: throw PlanoArquivoInvalido("Quantidade ausente para ${al.nome}")
+                    planos.inserir(ItemPlano(opcaoId = opcaoId, alimentoId = al.id, gramas = gramas, unidades = i.unidades.takeIf { al.unidadeGramas != null }))
+                }
+            }
+            val existentes = planos.planosAgora()
+            for ((ordem, p) in a.planos.withIndex()) {
+                val atual = existentes.firstOrNull { it.nome.equals(p.nome, ignoreCase = true) }
+                val alvo = app.noplano.domain.Alvo(p.alvo?.kcal, p.alvo?.prot, p.alvo?.carb, p.alvo?.gord)
+                val planoId = if (atual != null) {
+                    planos.refeicoesAgora(atual.id).forEach { planos.excluirRefeicao(it.refeicao.id) }
+                    planos.atualizar(atual.comAlvo(alvo))
+                    atual.id
+                } else planos.inserir(Plano(nome = p.nome, ordem = existentes.size + ordem).comAlvo(alvo))
+                p.dias.filter { it in 1..7 }.forEach { planos.definirDia(DiaSemana(it, planoId)) }
+                for ((i, r) in p.refeicoes.withIndex()) {
+                    val rid = planos.inserir(Refeicao(planoId = planoId, nome = r.nome, minutos = horarioEmMinutos(r.horario), obs = r.obs, ordem = i))
+                    inserirItens(planos.inserir(Opcao(refeicaoId = rid)), r.itens)
+                    for ((j, alt) in r.alternativas.withIndex()) inserirItens(planos.inserir(Opcao(refeicaoId = rid, nome = alt.nome, ordem = j + 1)), alt.itens)
+                }
+            }
+        }
+        ajustes.alterar { it.copy(planoArquivoVersao = maxOf(it.planoArquivoVersao, a.versao)) }
+        garantirInicial()
+        mudou(avaliar = false)
+    }
+
+    private suspend fun garantirAlimento(a: AlimentoArquivo): Long {
+        if (a.taco != null) {
+            val base = alimentos.porTaco(a.taco) ?: throw PlanoArquivoInvalido("Código TACO não encontrado: ${a.taco}")
+            if (a.unidadeNome != null && (base.unidadeNome != a.unidadeNome || base.unidadeGramas != a.unidadeGramas)) {
+                alimentos.atualizar(base.copy(unidadeNome = a.unidadeNome, unidadeGramas = a.unidadeGramas))
+            }
+            return base.id
+        }
+        val nome = a.nome ?: throw PlanoArquivoInvalido("Alimento ${a.chave} sem nome")
+        val f = 100.0 / a.porcao
+        fun v(x: Double?, campo: String) = (x ?: throw PlanoArquivoInvalido("$nome sem $campo")) * f
+        val novo = Alimento(
+            nome = nome, marca = a.marca, fonte = a.fonte, kcal100 = v(a.kcal, "calorias"), prot100 = v(a.prot, "proteínas"),
+            carb100 = v(a.carb, "carboidratos"), gord100 = v(a.gord, "gorduras"), emMl = a.emMl,
+            unidadeNome = a.unidadeNome, unidadeGramas = a.unidadeGramas,
+        )
+        // Mesmo nome e marca: atualiza os valores em vez de duplicar.
+        val existente = alimentos.todos().firstOrNull { it.nome == nome && it.marca == a.marca && it.fonte != "TACO" }
+        return if (existente != null) { alimentos.atualizar(novo.copy(id = existente.id)); existente.id } else alimentos.inserir(novo)
+    }
+
     // ---------- Alimentos ----------
 
     fun buscarAlimentos(q: String): Flow<List<Alimento>> = alimentos.buscar(q.trim())

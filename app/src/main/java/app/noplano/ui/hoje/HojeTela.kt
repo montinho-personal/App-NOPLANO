@@ -46,6 +46,7 @@ import app.noplano.ui.BotaoPrincipal
 import app.noplano.ui.CampoTexto
 import app.noplano.ui.ChipEscolha
 import app.noplano.ui.Cores
+import app.noplano.ui.DialogoBase
 import app.noplano.ui.Espaco
 import app.noplano.ui.LinhaDivisoria
 import app.noplano.ui.Margem
@@ -77,7 +78,25 @@ fun HojeTela(abrirAjustes: () -> Unit, abrirProgresso: () -> Unit, abrirPlano: (
     LaunchedEffect(aviso) { if (aviso != null) { delay(6_000); aviso = null } }
     LaunchedEffect(conquista) { if (conquista != null) { delay(5_000); conquista = null } }
 
+    val planoNovo by vm.planoNovo.collectAsStateWithLifecycle()
     val estado = ui ?: return Box(Modifier.fillMaxSize().background(Cores.fundo))
+    planoNovo?.takeIf { estado.dia.temPlano }?.let { novo ->
+        DialogoBase({}) {
+            Rotulo("Chegou com a atualização", cor = Cores.destaque)
+            Text("PLANO NOVO", style = Tipos.tituloCartao)
+            Espaco(6.dp)
+            if (novo.notas.isNotBlank()) { Text(novo.notas, style = Tipos.corpoForte); Espaco(6.dp) }
+            Text(
+                "Aplicar troca as refeições de " + novo.planos.joinToString { "\"${it.nome}\"" } +
+                    " pelas da versão nova. O que você já registrou continua no histórico.",
+                style = Tipos.corpoSuave,
+            )
+            Espaco(14.dp)
+            BotaoPrincipal("Aplicar plano novo", { vm.aplicarPlanoNovo(novo) })
+            Espaco(8.dp)
+            BotaoContorno("Manter o meu", { vm.manterPlano(novo) }, Modifier.fillMaxWidth())
+        }
+    }
     val acoes = HojeAcoes(
         concluir = { r, opcao -> view.vibrarConfirmacao(estado.vibrar); vm.concluir(r.id, r.nome, opcao) },
         abrirRefeicao = { r, opcao -> folha = Folha.Refeicao(r, opcao) },

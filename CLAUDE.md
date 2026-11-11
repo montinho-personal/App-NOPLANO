@@ -57,6 +57,23 @@ Se mexeu em tela, gere de novo as imagens e olhe o resultado:
 - `notif/Notificacoes.kt`: canais, agendamento (um alarme por vez), ações da notificação.
 - `app/src/test`: testes. `TelasTest` gera as imagens de `docs/telas`.
 
+## A dieta do usuário fica em `app/src/main/assets/plano.json`
+
+O dono pede mudanças na dieta por mensagem ("troca o arroz por 120 g de batata doce na
+refeição 2"). Para fazer:
+
+1. Edite `plano.json`. Alimentos: código da TACO (`"taco": 3`, procure em `assets/taco.json`)
+   ou um alimento de rótulo declarado em `"alimentos"` (valores da porção do rótulo; nunca
+   invente números, peça o rótulo se não tiver).
+2. **Suba `"versao"`** e escreva em `"notas"` o que mudou, em uma frase. Sem subir a versão,
+   o celular não oferece a mudança.
+3. Rode os testes (`PlanoArquivoTest` confere que o arquivo é válido) e faça push na `main`.
+4. O GitHub gera e publica o APK; o celular atualiza pelo Obtainium e o app pergunta se
+   aplica o plano novo. O histórico de registros não muda.
+
+O app aplica sozinho só no primeiro uso (sem nenhuma refeição cadastrada). Planos que não
+estão no arquivo ficam como estão; os que estão (pelo nome) têm as refeições substituídas.
+
 ## Identidade visual
 
 Direção "Pulso": fundo preto, uma única cor de destaque (amarelo vivo `#FFD60A`), números

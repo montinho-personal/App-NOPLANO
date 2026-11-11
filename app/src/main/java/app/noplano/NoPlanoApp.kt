@@ -7,6 +7,7 @@ import app.noplano.data.Banco
 import app.noplano.data.Preferencias
 import app.noplano.data.Repositorio
 import app.noplano.data.Taco
+import app.noplano.data.PlanoArquivo
 import app.noplano.notif.Agendador
 import app.noplano.notif.Canais
 import app.noplano.widget.Widgets
@@ -30,6 +31,7 @@ class NoPlanoApp : Application() {
         escopo.launch {
             repo.garantirInicial()
             Taco.garantir(this@NoPlanoApp, banco)
+            runCatching { repo.aplicarArquivoSeVazio(PlanoArquivo.doApp(this@NoPlanoApp)) }
             sincronizar(this@NoPlanoApp)
             runCatching { Agendador.agendarManutencao(this@NoPlanoApp) }
         }

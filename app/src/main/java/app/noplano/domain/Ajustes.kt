@@ -27,6 +27,8 @@ data class Ajustes(
     val widgetProgresso: Boolean = true,
     val boasVindasVista: Boolean = false,
     val pediuNotificacao: Boolean = false,
+    /** Última versão de assets/plano.json já aplicada (ou recusada). */
+    val planoArquivoVersao: Int = 0,
 ) {
     /** true se [min] cai no período de silêncio (que pode atravessar a meia-noite). */
     fun emSilencio(min: Int): Boolean = when {

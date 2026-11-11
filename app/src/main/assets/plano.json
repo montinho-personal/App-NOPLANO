@@ -1,0 +1,65 @@
+{
+  "versao": 1,
+  "notas": "Dieta inicial: 4 refeições.",
+  "alimentos": [
+    {
+      "chave": "whey-growth",
+      "nome": "Whey Protein Concentrado (TOP)",
+      "marca": "Growth",
+      "fonte": "Rótulo",
+      "porcao": 30,
+      "kcal": 122,
+      "prot": 23,
+      "carb": 2.7,
+      "gord": 2.1,
+      "unidadeNome": "scoop",
+      "unidadeGramas": 30
+    },
+    { "chave": "ovo", "taco": 488, "unidadeNome": "ovo", "unidadeGramas": 50 },
+    { "chave": "pao-frances", "taco": 53, "unidadeNome": "unidade", "unidadeGramas": 50 }
+  ],
+  "planos": [
+    {
+      "nome": "Meu plano",
+      "dias": [1, 2, 3, 4, 5, 6, 7],
+      "refeicoes": [
+        {
+          "nome": "Refeição 1",
+          "horario": "07:30",
+          "itens": [
+            { "taco": 7, "gramas": 45 },
+            { "alimento": "whey-growth", "gramas": 45 },
+            { "taco": 558, "gramas": 20 }
+          ]
+        },
+        {
+          "nome": "Refeição 2",
+          "horario": "12:30",
+          "itens": [
+            { "taco": 3, "gramas": 150 },
+            { "taco": 408, "gramas": 150 },
+            { "taco": 70, "gramas": 100 }
+          ]
+        },
+        {
+          "nome": "Refeição 3",
+          "horario": "19:30",
+          "itens": [
+            { "taco": 3, "gramas": 150 },
+            { "taco": 408, "gramas": 150 },
+            { "taco": 70, "gramas": 100 }
+          ]
+        },
+        {
+          "nome": "Refeição 4",
+          "horario": "22:00",
+          "itens": [
+            { "alimento": "ovo", "unidades": 2 },
+            { "alimento": "pao-frances", "unidades": 1 },
+            { "alimento": "whey-growth", "gramas": 45 }
+          ]
+        }
+      ]
+    }
+  ]
+}

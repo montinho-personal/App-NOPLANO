@@ -5,6 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import app.noplano.app
 import app.noplano.data.ItemConsumo
+import app.noplano.data.PlanoArquivo
 import app.noplano.data.ResultadoRegistro
 import app.noplano.domain.Ajustes
 import app.noplano.domain.Consistencia
@@ -20,6 +21,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -73,6 +75,21 @@ class HojeViewModel(aplicacao: Application) : AndroidViewModel(aplicacao) {
     ) { dia, (semana, total), aj: Ajustes ->
         HojeUi(dia, dia.data == relogio.hoje(), semana, total, Mensagens.doDia(dia), aj.vibrar, !aj.boasVindasVista)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
+
+    private val arquivo = PlanoArquivo.doApp(aplicacao)
+
+    /** Nova versão da dieta que chegou com a atualização do app, esperando o "aplicar". */
+    val planoNovo: StateFlow<PlanoArquivo?> = repo.ajustes.fluxo
+        .map { aj -> arquivo?.takeIf { it.versao > aj.planoArquivoVersao } }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
+
+    fun aplicarPlanoNovo(a: PlanoArquivo) = viewModelScope.launch {
+        runCatching { repo.aplicarArquivo(a) }
+            .onSuccess { avisos.emit(Aviso("Plano atualizado.")) }
+            .onFailure { avisos.emit(Aviso("Não foi possível aplicar o plano novo: ${it.message}")) }
+    }
+
+    fun manterPlano(a: PlanoArquivo) = viewModelScope.launch { repo.recusarArquivo(a) }
 
     fun irPara(d: Long) {
         val hoje = relogio.hoje()
