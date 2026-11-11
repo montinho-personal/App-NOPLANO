@@ -1,0 +1,724 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 1,
+    "identityHash": "ae822c137f274df4481276d23c6e6fa3",
+    "entities": [
+      {
+        "tableName": "Alimento",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `nome` TEXT NOT NULL, `marca` TEXT NOT NULL, `fonte` TEXT NOT NULL, `tacoId` INTEGER, `kcal100` REAL NOT NULL, `prot100` REAL NOT NULL, `carb100` REAL NOT NULL, `gord100` REAL NOT NULL, `emMl` INTEGER NOT NULL, `unidadeNome` TEXT, `unidadeGramas` REAL, `arquivado` INTEGER NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nome",
+            "columnName": "nome",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "marca",
+            "columnName": "marca",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "fonte",
+            "columnName": "fonte",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "tacoId",
+            "columnName": "tacoId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "kcal100",
+            "columnName": "kcal100",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "prot100",
+            "columnName": "prot100",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "carb100",
+            "columnName": "carb100",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "gord100",
+            "columnName": "gord100",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "emMl",
+            "columnName": "emMl",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "unidadeNome",
+            "columnName": "unidadeNome",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "unidadeGramas",
+            "columnName": "unidadeGramas",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "arquivado",
+            "columnName": "arquivado",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_Alimento_nome",
+            "unique": false,
+            "columnNames": [
+              "nome"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_Alimento_nome` ON `${TABLE_NAME}` (`nome`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "Plano",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `nome` TEXT NOT NULL, `ordem` INTEGER NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nome",
+            "columnName": "nome",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "ordem",
+            "columnName": "ordem",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "DiaSemana",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`dia` INTEGER NOT NULL, `planoId` INTEGER NOT NULL, PRIMARY KEY(`dia`))",
+        "fields": [
+          {
+            "fieldPath": "dia",
+            "columnName": "dia",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "planoId",
+            "columnName": "planoId",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "dia"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "Refeicao",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `planoId` INTEGER NOT NULL, `nome` TEXT NOT NULL, `minutos` INTEGER NOT NULL, `obs` TEXT NOT NULL, `ordem` INTEGER NOT NULL, FOREIGN KEY(`planoId`) REFERENCES `Plano`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "planoId",
+            "columnName": "planoId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nome",
+            "columnName": "nome",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "minutos",
+            "columnName": "minutos",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "obs",
+            "columnName": "obs",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "ordem",
+            "columnName": "ordem",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_Refeicao_planoId",
+            "unique": false,
+            "columnNames": [
+              "planoId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_Refeicao_planoId` ON `${TABLE_NAME}` (`planoId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "Plano",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "planoId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "Opcao",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `refeicaoId` INTEGER NOT NULL, `nome` TEXT NOT NULL, `ordem` INTEGER NOT NULL, FOREIGN KEY(`refeicaoId`) REFERENCES `Refeicao`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "refeicaoId",
+            "columnName": "refeicaoId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nome",
+            "columnName": "nome",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "ordem",
+            "columnName": "ordem",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_Opcao_refeicaoId",
+            "unique": false,
+            "columnNames": [
+              "refeicaoId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_Opcao_refeicaoId` ON `${TABLE_NAME}` (`refeicaoId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "Refeicao",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "refeicaoId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "ItemPlano",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `opcaoId` INTEGER NOT NULL, `alimentoId` INTEGER NOT NULL, `gramas` REAL NOT NULL, `unidades` REAL, FOREIGN KEY(`opcaoId`) REFERENCES `Opcao`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`alimentoId`) REFERENCES `Alimento`(`id`) ON UPDATE NO ACTION ON DELETE RESTRICT )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "opcaoId",
+            "columnName": "opcaoId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "alimentoId",
+            "columnName": "alimentoId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "gramas",
+            "columnName": "gramas",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "unidades",
+            "columnName": "unidades",
+            "affinity": "REAL",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_ItemPlano_opcaoId",
+            "unique": false,
+            "columnNames": [
+              "opcaoId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_ItemPlano_opcaoId` ON `${TABLE_NAME}` (`opcaoId`)"
+          },
+          {
+            "name": "index_ItemPlano_alimentoId",
+            "unique": false,
+            "columnNames": [
+              "alimentoId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_ItemPlano_alimentoId` ON `${TABLE_NAME}` (`alimentoId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "Opcao",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "opcaoId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "Alimento",
+            "onDelete": "RESTRICT",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "alimentoId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "Registro",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `data` INTEGER NOT NULL, `refeicaoId` INTEGER, `nome` TEXT NOT NULL, `minutosPlanejado` INTEGER, `registradoEm` INTEGER NOT NULL, `fracao` REAL NOT NULL, `ajustado` INTEGER NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "data",
+            "columnName": "data",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "refeicaoId",
+            "columnName": "refeicaoId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "nome",
+            "columnName": "nome",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "minutosPlanejado",
+            "columnName": "minutosPlanejado",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "registradoEm",
+            "columnName": "registradoEm",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "fracao",
+            "columnName": "fracao",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "ajustado",
+            "columnName": "ajustado",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_Registro_data_refeicaoId",
+            "unique": true,
+            "columnNames": [
+              "data",
+              "refeicaoId"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_Registro_data_refeicaoId` ON `${TABLE_NAME}` (`data`, `refeicaoId`)"
+          },
+          {
+            "name": "index_Registro_data",
+            "unique": false,
+            "columnNames": [
+              "data"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_Registro_data` ON `${TABLE_NAME}` (`data`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "ItemRegistro",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `registroId` INTEGER NOT NULL, `alimentoId` INTEGER, `nome` TEXT NOT NULL, `gramas` REAL NOT NULL, `medida` TEXT NOT NULL, `unidades` REAL, `unidadeNome` TEXT, `kcal` REAL NOT NULL, `prot` REAL NOT NULL, `carb` REAL NOT NULL, `gord` REAL NOT NULL, FOREIGN KEY(`registroId`) REFERENCES `Registro`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "registroId",
+            "columnName": "registroId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "alimentoId",
+            "columnName": "alimentoId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "nome",
+            "columnName": "nome",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "gramas",
+            "columnName": "gramas",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "medida",
+            "columnName": "medida",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "unidades",
+            "columnName": "unidades",
+            "affinity": "REAL",
+            "notNull": false
+          },
+          {
+            "fieldPath": "unidadeNome",
+            "columnName": "unidadeNome",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "kcal",
+            "columnName": "kcal",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "prot",
+            "columnName": "prot",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "carb",
+            "columnName": "carb",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "gord",
+            "columnName": "gord",
+            "affinity": "REAL",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_ItemRegistro_registroId",
+            "unique": false,
+            "columnNames": [
+              "registroId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_ItemRegistro_registroId` ON `${TABLE_NAME}` (`registroId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "Registro",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "registroId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "Agua",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `data` INTEGER NOT NULL, `ml` INTEGER NOT NULL, `em` INTEGER NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "data",
+            "columnName": "data",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "ml",
+            "columnName": "ml",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "em",
+            "columnName": "em",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_Agua_data",
+            "unique": false,
+            "columnNames": [
+              "data"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_Agua_data` ON `${TABLE_NAME}` (`data`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "DiaResumo",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`data` INTEGER NOT NULL, `planoNome` TEXT NOT NULL, `kcalPlano` REAL NOT NULL, `protPlano` REAL NOT NULL, `carbPlano` REAL NOT NULL, `gordPlano` REAL NOT NULL, `refeicoesPlano` INTEGER NOT NULL, `metaAguaMl` INTEGER NOT NULL, `dificuldade` TEXT, PRIMARY KEY(`data`))",
+        "fields": [
+          {
+            "fieldPath": "data",
+            "columnName": "data",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "planoNome",
+            "columnName": "planoNome",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "kcalPlano",
+            "columnName": "kcalPlano",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "protPlano",
+            "columnName": "protPlano",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "carbPlano",
+            "columnName": "carbPlano",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "gordPlano",
+            "columnName": "gordPlano",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "refeicoesPlano",
+            "columnName": "refeicoesPlano",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "metaAguaMl",
+            "columnName": "metaAguaMl",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "dificuldade",
+            "columnName": "dificuldade",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "data"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "Conquista",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`chave` TEXT NOT NULL, `em` INTEGER NOT NULL, PRIMARY KEY(`chave`))",
+        "fields": [
+          {
+            "fieldPath": "chave",
+            "columnName": "chave",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "em",
+            "columnName": "em",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "chave"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      }
+    ],
+    "views": [],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'ae822c137f274df4481276d23c6e6fa3')"
+    ]
+  }
+}

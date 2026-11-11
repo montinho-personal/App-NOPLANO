@@ -9,6 +9,13 @@ plugins {
 
 val versaoCodigo = (System.getenv("VERSION_CODE") ?: "1").toInt()
 
+val robolectricSdk: Configuration by configurations.creating
+val robolectricDir = layout.buildDirectory.dir("robolectric-sdk")
+val copiarRobolectric by tasks.registering(Copy::class) {
+    from(robolectricSdk)
+    into(robolectricDir)
+}
+
 android {
     namespace = "app.noplano"
     compileSdk = 35
@@ -56,7 +63,13 @@ android {
         unitTests {
             isIncludeAndroidResources = true
             isReturnDefaultValues = true
-            all { it.systemProperty("robolectric.graphicsMode", "NATIVE") }
+            all {
+                it.systemProperty("robolectric.graphicsMode", "NATIVE")
+                // O Robolectric usa a cópia do Android baixada pelo Gradle, sem ir à internet por conta própria.
+                it.systemProperty("robolectric.offline", "true")
+                it.systemProperty("robolectric.dependency.dir", robolectricDir.get().asFile.absolutePath)
+                it.dependsOn(copiarRobolectric)
+            }
         }
     }
 }
@@ -87,6 +100,7 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.kotlinx.coroutines.android)
 
+    robolectricSdk("org.robolectric:android-all-instrumented:15-robolectric-12650502-i7") { isTransitive = false }
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.robolectric)
